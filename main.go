@@ -27,11 +27,15 @@ func main() {
 	newTaskSrv := service.NewTaskService(newTaskGorm)
 	newTaskHandler := ginhandler.NewTaskHandler(newTaskSrv)
 
-	r.GET("api/tasks", newTaskHandler.Get)
-	r.POST("api/tasks", newTaskHandler.Create)
-	r.GET("api/tasks/:task", newTaskHandler.Show)
-	r.PUT("api/tasks/:task", newTaskHandler.Update)
-	r.DELETE("api/tasks/:task", newTaskHandler.Delete)
+	routeApi := r.Group("/api")
+	routeTasks := routeApi.Group("/tasks")
+	{
+		routeTasks.GET("/", newTaskHandler.Get)
+		routeTasks.POST("/", newTaskHandler.Create)
+		routeTasks.GET("/:task", newTaskHandler.Show)
+		routeTasks.PUT("/:task", newTaskHandler.Update)
+		routeTasks.DELETE("/:task", newTaskHandler.Delete)
+	}
 
 	r.Run(fmt.Sprintf("%v:%v", os.Getenv("APP_HOST"), os.Getenv("APP_POST")))
 }

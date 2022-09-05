@@ -19,11 +19,3 @@ type EditTask struct {
 	Detail string `json:"detail"`
 	Done   bool   `json:"done"`
 }
-
-type TaskHandler interface {
-	Get() ([]Task, error)
-	Create(task NewTask) (*Task, error)
-	Show(task Task, id uint) (*Task, error)
-	Update(id uint, task EditTask) (*Task, error)
-	Delete(id uint) error
-}
