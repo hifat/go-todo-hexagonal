@@ -5,8 +5,8 @@ import (
 )
 
 type Task struct {
-	ID        uint      `db:"id"`
-	UserID    uint      `db:"user_id"`
+	ID        string    `db:"id"`
+	UserID    string    `db:"user_id"`
 	Detail    string    `db:"detail"`
 	Done      bool      `db:"done"`
 	CreatedAt time.Time `db:"created_at"`
@@ -14,7 +14,7 @@ type Task struct {
 }
 
 type NewTask struct {
-	UserID uint   `db:"user_id"`
+	UserID string `db:"user_id"`
 	Detail string `db:"detail"`
 	Done   bool   `db:"done"`
 }
@@ -27,7 +27,7 @@ type EditTask struct {
 type TaskRepository interface {
 	Get() ([]Task, error)
 	Create(task NewTask) (*Task, error)
-	Show(id uint) (*Task, error)
-	Update(id uint, task EditTask) (*Task, error)
-	Delete(id uint) error
+	Show(id string) (*Task, error)
+	Update(id string, task EditTask) (*Task, error)
+	Delete(id string) error
 }

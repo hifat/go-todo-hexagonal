@@ -61,7 +61,7 @@ func (t taskService) Create(task NewTask) (*Task, error) {
 	return &taskResponse, nil
 }
 
-func (t taskService) Show(id uint) (*Task, error) {
+func (t taskService) Show(id string) (*Task, error) {
 	getTask, err := t.taskRepo.Show(id)
 	if err != nil {
 		log.Println(err)
@@ -80,7 +80,7 @@ func (t taskService) Show(id uint) (*Task, error) {
 	return &taskResponse, nil
 }
 
-func (t taskService) Update(id uint, task EditTask) (*Task, error) {
+func (t taskService) Update(id string, task EditTask) (*Task, error) {
 	editTask := repository.EditTask{
 		Detail: task.Detail,
 		Done:   task.Done,
@@ -105,7 +105,7 @@ func (t taskService) Update(id uint, task EditTask) (*Task, error) {
 	return &taskResponse, nil
 }
 
-func (t taskService) Delete(id uint) error {
+func (t taskService) Delete(id string) error {
 	err := t.taskRepo.Delete(id)
 	if err != nil {
 		log.Println(err)

@@ -3,8 +3,8 @@ package handler
 import "time"
 
 type Task struct {
-	ID        uint      `json:"id"`
-	UserID    uint      `json:"user_id"`
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
 	Detail    string    `json:"detail"`
 	Done      bool      `json:"done"`
 	CreatedAt time.Time `json:"created_at"`

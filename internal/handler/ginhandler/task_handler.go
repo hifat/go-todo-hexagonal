@@ -2,7 +2,6 @@ package ginhandler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hifat/go-todo-hexagonal/internal/handler"
@@ -40,7 +39,7 @@ func (t taskHandler) Create(ctx *gin.Context) {
 	}
 
 	newTask := service.NewTask{
-		UserID: 1,
+		UserID: "1",
 		Detail: reqTask.Detail,
 		Done:   false,
 	}
@@ -52,20 +51,15 @@ func (t taskHandler) Create(ctx *gin.Context) {
 		})
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{
 		"task": task,
 	})
 }
 
 func (t taskHandler) Show(ctx *gin.Context) {
-	taskID, err := strconv.ParseUint(ctx.Param("task"), 0, 0)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{})
-		return
-	}
+	taskID := ctx.Param("task")
 
-	task, err := t.taskSrv.Show(uint(taskID))
+	task, err := t.taskSrv.Show(taskID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{})
 		return
@@ -77,16 +71,10 @@ func (t taskHandler) Show(ctx *gin.Context) {
 }
 
 func (t taskHandler) Update(ctx *gin.Context) {
-	taskID, err := strconv.ParseUint(ctx.Param("task"), 0, 0)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
-		return
-	}
+	taskID := ctx.Param("task")
 
 	var taskReq handler.EditTask
-	err = ctx.ShouldBind(&taskReq)
+	err := ctx.ShouldBind(&taskReq)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
@@ -99,7 +87,7 @@ func (t taskHandler) Update(ctx *gin.Context) {
 		Done:   taskReq.Done,
 	}
 
-	task, err := t.taskSrv.Update(uint(taskID), editTask)
+	task, err := t.taskSrv.Update(taskID, editTask)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
@@ -113,15 +101,9 @@ func (t taskHandler) Update(ctx *gin.Context) {
 }
 
 func (t taskHandler) Delete(ctx *gin.Context) {
-	taskID, err := strconv.ParseUint(ctx.Param("task"), 0, 0)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
-		return
-	}
+	taskID := ctx.Param("task")
 
-	err = t.taskSrv.Delete(uint(taskID))
+	err := t.taskSrv.Delete(taskID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
