@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hifat/go-todo-hexagonal/helper/errs"
 	"github.com/hifat/go-todo-hexagonal/internal/repository"
 	"gorm.io/gorm"
 )
@@ -26,7 +27,7 @@ func (r *taskRepositoryDB) Get() ([]repository.Task, error) {
 	return tasks, nil
 }
 
-type createTask struct {
+type Task struct {
 	ID        uint
 	UserID    uint
 	Detail    string
@@ -38,9 +39,9 @@ type createTask struct {
 func (r *taskRepositoryDB) Create(newTask repository.NewTask) (*repository.Task, error) {
 	userID, err := strconv.Atoi(newTask.UserID)
 	if err != nil {
-		return nil, err
+		return nil, errs.NaN("UserID")
 	}
-	createdTask := createTask{
+	createdTask := Task{
 		UserID: uint(userID),
 		Detail: newTask.Detail,
 		Done:   newTask.Done,
@@ -64,19 +65,37 @@ func (r *taskRepositoryDB) Create(newTask repository.NewTask) (*repository.Task,
 }
 
 func (r *taskRepositoryDB) Show(id string) (*repository.Task, error) {
-	var task repository.Task
-	tx := r.db.Find(&task, id)
+	userID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, errs.NaN("UserID")
+	}
+
+	var taskReciever Task
+	tx := r.db.Find(&taskReciever, userID)
 	if tx.Error != nil {
 		return nil, tx.Error
+	}
+
+	task := repository.Task{
+		ID:        strconv.Itoa(int(taskReciever.ID)),
+		UserID:    strconv.Itoa(int(taskReciever.UserID)),
+		Detail:    taskReciever.Detail,
+		Done:      taskReciever.Done,
+		CreatedAt: taskReciever.CreatedAt,
+		UpdatedAt: taskReciever.UpdatedAt,
 	}
 
 	return &task, nil
 }
 
 func (r *taskRepositoryDB) Update(id string, editTask repository.EditTask) (*repository.Task, error) {
-	var task repository.Task
+	userID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, errs.NaN("UserID")
+	}
 
-	tx := r.db.First(&task, id)
+	var task repository.Task
+	tx := r.db.First(&task, userID)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -93,7 +112,12 @@ func (r *taskRepositoryDB) Update(id string, editTask repository.EditTask) (*rep
 }
 
 func (r *taskRepositoryDB) Delete(id string) error {
-	tx := r.db.Delete(&repository.Task{}, id)
+	userID, err := strconv.Atoi(id)
+	if err != nil {
+		return errs.NaN("UserID")
+	}
+
+	tx := r.db.Delete(&repository.Task{}, userID)
 	if tx.Error != nil {
 		return tx.Error
 	}

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"log"
-
+	"github.com/hifat/go-todo-hexagonal/helper/errs"
+	"github.com/hifat/go-todo-hexagonal/helper/zlog"
 	"github.com/hifat/go-todo-hexagonal/internal/repository"
 )
 
@@ -17,8 +17,8 @@ func NewTaskService(taskRepo repository.TaskRepository) TaskService {
 func (t taskService) Get() ([]Task, error) {
 	getTasks, err := t.taskRepo.Get()
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		zlog.Error(err)
+		return nil, errs.Unexpected()
 	}
 
 	tasks := []Task{}
@@ -45,8 +45,8 @@ func (t taskService) Create(task NewTask) (*Task, error) {
 
 	createdTask, err := t.taskRepo.Create(newTask)
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		zlog.Error(err)
+		return nil, errs.Unexpected()
 	}
 
 	taskResponse := Task{
@@ -64,8 +64,8 @@ func (t taskService) Create(task NewTask) (*Task, error) {
 func (t taskService) Show(id string) (*Task, error) {
 	getTask, err := t.taskRepo.Show(id)
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		zlog.Error(err)
+		return nil, errs.Unexpected()
 	}
 
 	taskResponse := Task{
@@ -89,8 +89,8 @@ func (t taskService) Update(id string, task EditTask) (*Task, error) {
 	updatedTask, err := t.taskRepo.Update(id, editTask)
 
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		zlog.Error(err)
+		return nil, errs.Unexpected()
 	}
 
 	taskResponse := Task{
@@ -108,8 +108,8 @@ func (t taskService) Update(id string, task EditTask) (*Task, error) {
 func (t taskService) Delete(id string) error {
 	err := t.taskRepo.Delete(id)
 	if err != nil {
-		log.Println(err)
-		return err
+		zlog.Error(err)
+		return errs.Unexpected()
 	}
 
 	return nil

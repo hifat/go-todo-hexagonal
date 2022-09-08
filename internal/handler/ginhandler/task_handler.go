@@ -19,7 +19,7 @@ func NewTaskHandler(taskSrv service.TaskService) taskHandler {
 func (t taskHandler) Get(ctx *gin.Context) {
 	tasks, err := t.taskSrv.Get()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{})
+		handlerError(ctx, err)
 		return
 	}
 
@@ -32,9 +32,7 @@ func (t taskHandler) Create(ctx *gin.Context) {
 	var reqTask handler.NewTask
 	err := ctx.ShouldBind(&reqTask)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
+		handlerError(ctx, err)
 		return
 	}
 
@@ -46,9 +44,7 @@ func (t taskHandler) Create(ctx *gin.Context) {
 
 	task, err := t.taskSrv.Create(newTask)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
+		handlerError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -61,7 +57,7 @@ func (t taskHandler) Show(ctx *gin.Context) {
 
 	task, err := t.taskSrv.Show(taskID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{})
+		handlerError(ctx, err)
 		return
 	}
 
@@ -76,9 +72,7 @@ func (t taskHandler) Update(ctx *gin.Context) {
 	var taskReq handler.EditTask
 	err := ctx.ShouldBind(&taskReq)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
+		handlerError(ctx, err)
 		return
 	}
 
@@ -89,9 +83,7 @@ func (t taskHandler) Update(ctx *gin.Context) {
 
 	task, err := t.taskSrv.Update(taskID, editTask)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
+		handlerError(ctx, err)
 		return
 	}
 
@@ -105,9 +97,7 @@ func (t taskHandler) Delete(ctx *gin.Context) {
 
 	err := t.taskSrv.Delete(taskID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
+		handlerError(ctx, err)
 		return
 	}
 
