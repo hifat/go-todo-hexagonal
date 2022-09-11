@@ -1,14 +1,14 @@
-package repository
+package service
 
 type Register struct {
-	Username string `db:"username"`
-	Password string `db:"password"`
-	Name     string `db:"name"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
 }
 
 type Login struct {
-	Username string `db:"username"`
-	Password string `db:"password"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type Auth struct {
@@ -16,7 +16,7 @@ type Auth struct {
 	User
 }
 
-type AuthRepository interface {
+type AuthService interface {
 	Register(register Register) (*Auth, error)
 	Login(login Login) (*Auth, error)
 	Me(token string) (*Auth, error)

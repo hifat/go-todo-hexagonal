@@ -5,44 +5,43 @@ import (
 	"gorm.io/gorm"
 )
 
-type userRepositoryDB struct {
+type authRepositoryDB struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) repository.AuthRepository {
-	return userRepositoryDB{db}
+func NewAuthGorm(db *gorm.DB) repository.AuthRepository {
+	return authRepositoryDB{db}
 }
 
-func (r userRepositoryDB) Register(register repository.Register) (*repository.Auth, error) {
-	newUser := repository.User{
+type user struct {
+	Username string
+	Password string
+	Name     string
+}
+
+func (r authRepositoryDB) Register(register repository.Register) (*repository.Auth, error) {
+	newUser := user{
 		Username: register.Username,
 		Password: register.Password,
 		Name:     register.Name,
 	}
 
-	tx := r.db.Create(&newUser)
+	var userRepo repository.User
+
+	tx := r.db.Create(&newUser).Find(&userRepo)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 
-	user := repository.User{
-		ID:        newUser.ID,
-		Username:  newUser.Username,
-		Password:  newUser.Password,
-		Name:      newUser.Name,
-		CreatedAt: newUser.CreatedAt,
-		UpdatedAt: newUser.UpdatedAt,
-	}
-
 	auth := repository.Auth{
-		User:  user,
-		Token: "",
+		User:        userRepo,
+		AccessToken: "",
 	}
 
 	return &auth, nil
 }
 
-func (r userRepositoryDB) Login(login repository.Login) (*repository.Auth, error) {
+func (r authRepositoryDB) Login(login repository.Login) (*repository.Auth, error) {
 	credentials := repository.User{
 		Username: login.Username,
 	}
@@ -52,11 +51,23 @@ func (r userRepositoryDB) Login(login repository.Login) (*repository.Auth, error
 		return nil, tx.Error
 	}
 
-	// compare password
+	user := repository.User{
+		ID:        credentials.ID,
+		Username:  credentials.Username,
+		Password:  credentials.Password,
+		Name:      credentials.Name,
+		CreatedAt: credentials.CreatedAt,
+		UpdatedAt: credentials.UpdatedAt,
+	}
 
-	return nil, nil
+	auth := repository.Auth{
+		User:        user,
+		AccessToken: "",
+	}
+
+	return &auth, nil
 }
 
-func (r userRepositoryDB) Me(token string) (*repository.Auth, error) {
+func (r authRepositoryDB) Me(token string) (*repository.Auth, error) {
 	return nil, nil
 }

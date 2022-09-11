@@ -7,5 +7,8 @@ import (
 
 func main() {
 	db := configs.GormDB()
-	db.AutoMigrate(&migration.Task{})
+	db.AutoMigrate(
+		&migration.User{},
+		&migration.Task{},
+	)
 }

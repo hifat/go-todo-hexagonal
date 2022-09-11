@@ -1,12 +1,14 @@
 package migration
 
-import "time"
+import (
+	"time"
+)
 
 type Task struct {
 	ID        uint
-	UserID    uint
-	Detail    string `gorm:"type:varchar(255)"`
-	Done      bool   `gorm:"default:false"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	UserID    uint      `gorm:"not null"`
+	Detail    string    `gorm:"type:varchar(255); not null"`
+	Done      bool      `gorm:"default:false; not null"`
+	CreatedAt time.Time `gorm:"type:DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"type:DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"`
 }

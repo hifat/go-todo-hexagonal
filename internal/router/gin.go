@@ -24,11 +24,12 @@ func ExecGinRouter() {
 	db := configs.GormDB()
 	r := gin.Default()
 
+	routeApi := r.Group("/api")
+
 	newTaskGorm := gormrepo.NewTaskGorm(db)
 	newTaskSrv := service.NewTaskService(newTaskGorm)
 	newTaskHandler := ginhandler.NewTaskHandler(newTaskSrv)
 
-	routeApi := r.Group("/api")
 	routeTasks := routeApi.Group("/tasks")
 	{
 		routeTasks.GET("/", newTaskHandler.Get)
@@ -36,6 +37,15 @@ func ExecGinRouter() {
 		routeTasks.GET("/:task", newTaskHandler.Show)
 		routeTasks.PUT("/:task", newTaskHandler.Update)
 		routeTasks.DELETE("/:task", newTaskHandler.Delete)
+	}
+
+	newAuthGorm := gormrepo.NewAuthGorm(db)
+	newAuthSrv := service.NewAuthService(newAuthGorm)
+	newAuthHandler := ginhandler.NewAuthHandler(newAuthSrv)
+
+	routeAuths := routeApi.Group("/auth")
+	{
+		routeAuths.POST("/register", newAuthHandler.Register)
 	}
 
 	zlog.Info("Server listening on port " + os.Getenv("APP_PORT"))

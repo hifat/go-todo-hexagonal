@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  mariadb:
+    image: mariadb
+    container_name: mariadb
+    environment: 
+      - MARIADB_USER=root
+      - MARIADB_ROOT_PASSWORD=1234
+      - MARIADB_DATABASE=go_todo
+    ports: 
+      - 3306:3306
+    volumes: 
+      - ./.docker/mariadb:/var/lib/mysql
