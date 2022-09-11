@@ -8,8 +8,10 @@ import (
 	"github.com/hifat/go-todo-hexagonal/configs"
 	"github.com/hifat/go-todo-hexagonal/helper/zlog"
 	"github.com/hifat/go-todo-hexagonal/internal/handler/ginhandler"
+	"github.com/hifat/go-todo-hexagonal/internal/handler/ginhandler/ginmiddleware"
 	"github.com/hifat/go-todo-hexagonal/internal/repository/gormrepo"
 	"github.com/hifat/go-todo-hexagonal/internal/service"
+	"github.com/hifat/go-todo-hexagonal/internal/token"
 	"github.com/joho/godotenv"
 )
 
@@ -23,6 +25,13 @@ func init() {
 func ExecGinRouter() {
 	db := configs.GormDB()
 	r := gin.Default()
+
+	jwtMaker, err := token.NewJWTMaker(os.Getenv("JWT_SECRET_KEY"))
+	if err != nil {
+		panic(err)
+	}
+
+	middlewareAuth := ginmiddleware.Auth(jwtMaker)
 
 	routeApi := r.Group("/api")
 
@@ -47,6 +56,7 @@ func ExecGinRouter() {
 	{
 		routeAuths.POST("/register", newAuthHandler.Register)
 		routeAuths.POST("/login", newAuthHandler.Login)
+		routeAuths.GET("/me", middlewareAuth, newAuthHandler.Me)
 	}
 
 	zlog.Info("Server listening on port " + os.Getenv("APP_PORT"))

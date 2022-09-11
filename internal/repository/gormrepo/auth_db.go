@@ -77,6 +77,28 @@ func (r authRepositoryDB) Login(login repository.Login) (*repository.Auth, error
 	return &auth, nil
 }
 
-func (r authRepositoryDB) Me(token string) (*repository.Auth, error) {
-	return nil, nil
+func (r authRepositoryDB) Me(username string) (*repository.Auth, error) {
+	credentials := user{
+		Username: username,
+	}
+
+	tx := r.db.Where("username = ?", credentials.Username).First(&credentials)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	user := repository.User{
+		ID:        fmt.Sprintf("%v", credentials.ID),
+		Username:  credentials.Username,
+		Password:  credentials.Password,
+		Name:      credentials.Name,
+		CreatedAt: credentials.CreatedAt,
+		UpdatedAt: credentials.UpdatedAt,
+	}
+
+	auth := repository.Auth{
+		User: user,
+	}
+
+	return &auth, nil
 }

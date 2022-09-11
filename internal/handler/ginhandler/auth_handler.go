@@ -2,6 +2,7 @@ package ginhandler
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hifat/go-todo-hexagonal/internal/handler"
@@ -54,6 +55,20 @@ func (t authHandler) Login(ctx *gin.Context) {
 	}
 
 	login, err := t.authSrv.Login(loginServ)
+	if err != nil {
+		handlerError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"user": login,
+	})
+}
+
+func (t authHandler) Me(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	accessToken := strings.TrimPrefix(authHeader, "Bearer ")
+
+	login, err := t.authSrv.Me(accessToken)
 	if err != nil {
 		handlerError(ctx, err)
 		return

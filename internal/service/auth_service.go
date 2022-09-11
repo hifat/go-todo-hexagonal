@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -114,6 +115,28 @@ func (r authService) Login(login Login) (*Auth, error) {
 	return &auth, nil
 }
 
-func (r authService) Me(token string) (*Auth, error) {
-	return nil, nil
+func (r authService) Me(accessToken string) (*Auth, error) {
+	payload, err := jwtMaker.VerifyToken(accessToken)
+	if err != nil {
+		return nil, errs.Unexpected()
+	}
+	fmt.Println("Payload: ", payload.Username)
+
+	meDB, err := r.db.Me(payload.Username)
+	if err != nil {
+		return nil, errs.Unexpected()
+	}
+
+	user := Auth{
+		User: User{
+			ID:        meDB.ID,
+			Username:  meDB.Username,
+			Name:      meDB.Name,
+			CreatedAt: meDB.CreatedAt,
+			UpdatedAt: meDB.UpdatedAt,
+		},
+		AccessToken: accessToken,
+	}
+
+	return &user, nil
 }

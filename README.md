@@ -3,7 +3,7 @@
 ### Features
 - [x] Register
 - [ ] Edit user profile
-- [ ] Login JWT Auth
+- [x] Login JWT Auth
 - [x] CRUD Task
 - [ ] Toggle task done
 

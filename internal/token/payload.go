@@ -30,7 +30,7 @@ func NewPayload(username string, duration time.Duration) (*Payload, error) {
 		ID:        tokenID,
 		Username:  username,
 		IssuedAt:  time.Now(),
-		ExpiredAt: time.Now(),
+		ExpiredAt: time.Now().Add(duration),
 	}
 
 	return payload, nil
