@@ -1,6 +1,9 @@
 package gormrepo
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/hifat/go-todo-hexagonal/internal/repository"
 	"gorm.io/gorm"
 )
@@ -14,9 +17,12 @@ func NewAuthGorm(db *gorm.DB) repository.AuthRepository {
 }
 
 type user struct {
-	Username string
-	Password string
-	Name     string
+	ID        uint
+	Username  string
+	Password  string
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (r authRepositoryDB) Register(register repository.Register) (*repository.Auth, error) {
@@ -26,16 +32,20 @@ func (r authRepositoryDB) Register(register repository.Register) (*repository.Au
 		Name:     register.Name,
 	}
 
-	var userRepo repository.User
-
-	tx := r.db.Create(&newUser).Find(&userRepo)
+	tx := r.db.Create(&newUser)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 
 	auth := repository.Auth{
-		User:        userRepo,
-		AccessToken: "",
+		User: repository.User{
+			ID:        fmt.Sprintf("%d", newUser.ID),
+			Username:  newUser.Username,
+			Password:  newUser.Password,
+			Name:      newUser.Name,
+			CreatedAt: newUser.CreatedAt,
+			UpdatedAt: newUser.UpdatedAt,
+		},
 	}
 
 	return &auth, nil
@@ -61,8 +71,7 @@ func (r authRepositoryDB) Login(login repository.Login) (*repository.Auth, error
 	}
 
 	auth := repository.Auth{
-		User:        user,
-		AccessToken: "",
+		User: user,
 	}
 
 	return &auth, nil
