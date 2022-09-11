@@ -52,17 +52,17 @@ func (r authRepositoryDB) Register(register repository.Register) (*repository.Au
 }
 
 func (r authRepositoryDB) Login(login repository.Login) (*repository.Auth, error) {
-	credentials := repository.User{
+	credentials := user{
 		Username: login.Username,
 	}
 
-	tx := r.db.Where("username = ?", credentials.Username).Find(&credentials)
+	tx := r.db.Where("username = ?", credentials.Username).First(&credentials)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 
 	user := repository.User{
-		ID:        credentials.ID,
+		ID:        fmt.Sprintf("%v", credentials.ID),
 		Username:  credentials.Username,
 		Password:  credentials.Password,
 		Name:      credentials.Name,

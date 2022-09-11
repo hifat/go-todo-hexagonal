@@ -39,3 +39,26 @@ func (t authHandler) Register(ctx *gin.Context) {
 		"user": register,
 	})
 }
+
+func (t authHandler) Login(ctx *gin.Context) {
+	var reqAuth handler.Login
+	err := ctx.ShouldBind(&reqAuth)
+	if err != nil {
+		handlerError(ctx, err)
+		return
+	}
+
+	loginServ := service.Login{
+		Username: reqAuth.Username,
+		Password: reqAuth.Password,
+	}
+
+	login, err := t.authSrv.Login(loginServ)
+	if err != nil {
+		handlerError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"user": login,
+	})
+}

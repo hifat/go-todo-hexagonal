@@ -1,13 +1,19 @@
 # Go Todo Hexagonal
 
 ### Features
-- [ ] Register
+- [x] Register
 - [ ] Edit user profile
 - [ ] Login JWT Auth
 - [x] CRUD Task
 - [ ] Toggle task done
 
 ### Run
+1. Start docker
+```
+docker-compose up -d
+```
+
+2. Run API server
 ```
 go run .
 ```

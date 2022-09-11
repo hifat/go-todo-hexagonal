@@ -46,6 +46,7 @@ func ExecGinRouter() {
 	routeAuths := routeApi.Group("/auth")
 	{
 		routeAuths.POST("/register", newAuthHandler.Register)
+		routeAuths.POST("/login", newAuthHandler.Login)
 	}
 
 	zlog.Info("Server listening on port " + os.Getenv("APP_PORT"))
