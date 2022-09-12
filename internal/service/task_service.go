@@ -80,6 +80,25 @@ func (t taskService) Show(id string) (*Task, error) {
 	return &taskResponse, nil
 }
 
+func (t taskService) ToggleDone(id string) (*Task, error) {
+	updatedTask, err := t.taskRepo.ToggleDone(id)
+	if err != nil {
+		zlog.Error(err)
+		return nil, errs.Unexpected()
+	}
+
+	taskResponse := Task{
+		ID:        updatedTask.ID,
+		UserID:    updatedTask.UserID,
+		Detail:    updatedTask.Detail,
+		Done:      updatedTask.Done,
+		CreatedAt: updatedTask.CreatedAt,
+		UpdatedAt: updatedTask.UpdatedAt,
+	}
+
+	return &taskResponse, nil
+}
+
 func (t taskService) Update(id string, task EditTask) (*Task, error) {
 	editTask := repository.EditTask{
 		Detail: task.Detail,

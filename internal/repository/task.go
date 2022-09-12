@@ -28,6 +28,7 @@ type TaskRepository interface {
 	Get() ([]Task, error)
 	Create(task NewTask) (*Task, error)
 	Show(id string) (*Task, error)
+	ToggleDone(id string) (*Task, error)
 	Update(id string, task EditTask) (*Task, error)
 	Delete(id string) error
 }

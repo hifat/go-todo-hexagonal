@@ -88,14 +88,36 @@ func (r *taskRepositoryDB) Show(id string) (*repository.Task, error) {
 	return &task, nil
 }
 
+func (r *taskRepositoryDB) ToggleDone(id string) (*repository.Task, error) {
+	taskID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, errs.NaN("taskID")
+	}
+
+	var task repository.Task
+	tx := r.db.First(&task, taskID)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	tx = r.db.Model(&task).Updates(map[string]interface{}{
+		"Done": !task.Done,
+	})
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return &task, nil
+}
+
 func (r *taskRepositoryDB) Update(id string, editTask repository.EditTask) (*repository.Task, error) {
-	userID, err := strconv.Atoi(id)
+	taskID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, errs.NaN("UserID")
 	}
 
 	var task repository.Task
-	tx := r.db.First(&task, userID)
+	tx := r.db.First(&task, taskID)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}

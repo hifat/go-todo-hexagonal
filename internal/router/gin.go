@@ -44,6 +44,7 @@ func ExecGinRouter() {
 		routeTasks.GET("/", newTaskHandler.Get)
 		routeTasks.POST("/", newTaskHandler.Create)
 		routeTasks.GET("/:task", newTaskHandler.Show)
+		routeTasks.PUT("/:task/done", newTaskHandler.ToggleDone)
 		routeTasks.PUT("/:task", newTaskHandler.Update)
 		routeTasks.DELETE("/:task", newTaskHandler.Delete)
 	}

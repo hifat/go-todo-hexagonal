@@ -68,6 +68,20 @@ func (t taskHandler) Show(ctx *gin.Context) {
 	})
 }
 
+func (t taskHandler) ToggleDone(ctx *gin.Context) {
+	taskID := ctx.Param("task")
+
+	task, err := t.taskSrv.ToggleDone(taskID)
+	if err != nil {
+		handlerError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"task": task,
+	})
+}
+
 func (t taskHandler) Update(ctx *gin.Context) {
 	taskID := ctx.Param("task")
 
