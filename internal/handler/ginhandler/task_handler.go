@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hifat/go-todo-hexagonal/internal/handler"
 	"github.com/hifat/go-todo-hexagonal/internal/service"
+	"github.com/hifat/go-todo-hexagonal/internal/token"
 )
 
 type taskHandler struct {
@@ -36,10 +37,11 @@ func (t taskHandler) Create(ctx *gin.Context) {
 		return
 	}
 
+	user, _ := ctx.MustGet("user").(*token.Payload)
+
 	newTask := service.NewTask{
-		UserID: "1",
+		UserID: user.UserID,
 		Detail: reqTask.Detail,
-		Done:   false,
 	}
 
 	task, err := t.taskSrv.Create(newTask)

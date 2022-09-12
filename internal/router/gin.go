@@ -39,7 +39,7 @@ func ExecGinRouter() {
 	newTaskSrv := service.NewTaskService(newTaskGorm)
 	newTaskHandler := ginhandler.NewTaskHandler(newTaskSrv)
 
-	routeTasks := routeApi.Group("/tasks")
+	routeTasks := routeApi.Group("/tasks", middlewareAuth)
 	{
 		routeTasks.GET("/", newTaskHandler.Get)
 		routeTasks.POST("/", newTaskHandler.Create)

@@ -22,7 +22,7 @@ func Auth(tokenMaker token.Maker) gin.HandlerFunc {
 			})
 		}
 
-		ctx.Set("Authorization", payload)
+		ctx.Set("user", payload)
 		ctx.Next()
 	}
 }

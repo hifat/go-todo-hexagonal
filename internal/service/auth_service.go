@@ -67,7 +67,12 @@ func (r authService) Register(register Register) (*Auth, error) {
 		UpdatedAt: registerDB.UpdatedAt,
 	}
 
-	token, err := jwtMaker.CreateToken(user.Username, 24*time.Hour)
+	userPayload := token.UserPayload{
+		UserID:   user.ID,
+		Username: user.Username,
+	}
+
+	token, err := jwtMaker.CreateToken(userPayload, 24*time.Hour)
 	if err != nil {
 		zlog.Error(err)
 		return nil, errs.Unexpected()
@@ -101,7 +106,12 @@ func (r authService) Login(login Login) (*Auth, error) {
 		UpdatedAt: loginDB.UpdatedAt,
 	}
 
-	token, err := jwtMaker.CreateToken(user.Username, 24*time.Hour)
+	userPayload := token.UserPayload{
+		UserID:   user.ID,
+		Username: user.Username,
+	}
+
+	token, err := jwtMaker.CreateToken(userPayload, 24*time.Hour)
 	if err != nil {
 		zlog.Error(err)
 		return nil, errs.Unexpected()
