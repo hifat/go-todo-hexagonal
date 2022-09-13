@@ -14,8 +14,8 @@ func NewTaskService(taskRepo repository.TaskRepository) TaskService {
 	return &taskService{taskRepo}
 }
 
-func (t taskService) Get() ([]Task, error) {
-	getTasks, err := t.taskRepo.Get()
+func (t taskService) Get(userID string) ([]Task, error) {
+	getTasks, err := t.taskRepo.Get(userID)
 	if err != nil {
 		zlog.Error(err)
 		return nil, errs.Unexpected()

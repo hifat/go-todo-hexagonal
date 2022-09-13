@@ -17,9 +17,9 @@ func NewTaskGorm(db *gorm.DB) repository.TaskRepository {
 	return &taskRepositoryDB{db}
 }
 
-func (r *taskRepositoryDB) Get() ([]repository.Task, error) {
+func (r *taskRepositoryDB) Get(userID string) ([]repository.Task, error) {
 	var tasks []repository.Task
-	tx := r.db.Find(&tasks)
+	tx := r.db.Where("user_id = ?", userID).Find(&tasks)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}

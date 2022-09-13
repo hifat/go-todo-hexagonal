@@ -18,7 +18,8 @@ func NewTaskHandler(taskSrv service.TaskService) taskHandler {
 }
 
 func (t taskHandler) Get(ctx *gin.Context) {
-	tasks, err := t.taskSrv.Get()
+	user := ctx.MustGet("user").(*token.Payload)
+	tasks, err := t.taskSrv.Get(user.UserID)
 	if err != nil {
 		handlerError(ctx, err)
 		return

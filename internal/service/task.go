@@ -23,7 +23,7 @@ type EditTask struct {
 }
 
 type TaskService interface {
-	Get() ([]Task, error)
+	Get(userID string) ([]Task, error)
 	Create(task NewTask) (*Task, error)
 	Show(id string) (*Task, error)
 	ToggleDone(id string) (*Task, error)
