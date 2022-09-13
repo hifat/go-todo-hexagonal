@@ -10,3 +10,12 @@ type User struct {
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
+
+type EditUser struct {
+	Username string `db:"detail"`
+	Name     string `db:"name"`
+}
+
+type UserRepository interface {
+	Update(id string, editUser EditUser) (*User, error)
+}

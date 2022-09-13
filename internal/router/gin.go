@@ -35,6 +35,17 @@ func ExecGinRouter() {
 
 	routeApi := r.Group("/api")
 
+	newAuthGorm := gormrepo.NewAuthGorm(db)
+	newAuthSrv := service.NewAuthService(newAuthGorm)
+	newAuthHandler := ginhandler.NewAuthHandler(newAuthSrv)
+
+	routeAuths := routeApi.Group("/auth")
+	{
+		routeAuths.POST("/register", newAuthHandler.Register)
+		routeAuths.POST("/login", newAuthHandler.Login)
+		routeAuths.GET("/me", middlewareAuth, newAuthHandler.Me)
+	}
+
 	newTaskGorm := gormrepo.NewTaskGorm(db)
 	newTaskSrv := service.NewTaskService(newTaskGorm)
 	newTaskHandler := ginhandler.NewTaskHandler(newTaskSrv)
@@ -49,15 +60,13 @@ func ExecGinRouter() {
 		routeTasks.DELETE("/:task", newTaskHandler.Delete)
 	}
 
-	newAuthGorm := gormrepo.NewAuthGorm(db)
-	newAuthSrv := service.NewAuthService(newAuthGorm)
-	newAuthHandler := ginhandler.NewAuthHandler(newAuthSrv)
+	newUserGorm := gormrepo.NewUserGorm(db)
+	newUserSrv := service.NewUserService(newUserGorm)
+	newUserHandler := ginhandler.NewUserHandler(newUserSrv)
 
-	routeAuths := routeApi.Group("/auth")
+	routeUsers := routeApi.Group("/users", middlewareAuth)
 	{
-		routeAuths.POST("/register", newAuthHandler.Register)
-		routeAuths.POST("/login", newAuthHandler.Login)
-		routeAuths.GET("/me", middlewareAuth, newAuthHandler.Me)
+		routeUsers.PUT("/", newUserHandler.Update)
 	}
 
 	zlog.Info("Server listening on port " + os.Getenv("APP_PORT"))

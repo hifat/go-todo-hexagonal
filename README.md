@@ -5,7 +5,7 @@
 - [ ] Edit user profile
 - [x] Login JWT Auth
 - [x] CRUD Task
-- [ ] Toggle task done
+- [x] Toggle task done
 
 ### Run
 1. Start docker

@@ -37,12 +37,12 @@ type Task struct {
 }
 
 func (r *taskRepositoryDB) Create(newTask repository.NewTask) (*repository.Task, error) {
-	userID, err := strconv.Atoi(newTask.UserID)
+	taskID, err := strconv.Atoi(newTask.UserID)
 	if err != nil {
-		return nil, errs.NaN("UserID")
+		return nil, errs.NaN("TaskID")
 	}
 	createdTask := Task{
-		UserID: uint(userID),
+		UserID: uint(taskID),
 		Detail: newTask.Detail,
 		Done:   newTask.Done,
 	}
@@ -65,13 +65,13 @@ func (r *taskRepositoryDB) Create(newTask repository.NewTask) (*repository.Task,
 }
 
 func (r *taskRepositoryDB) Show(id string) (*repository.Task, error) {
-	userID, err := strconv.Atoi(id)
+	taskID, err := strconv.Atoi(id)
 	if err != nil {
-		return nil, errs.NaN("UserID")
+		return nil, errs.NaN("TaskID")
 	}
 
 	var taskReciever Task
-	tx := r.db.Find(&taskReciever, userID)
+	tx := r.db.Find(&taskReciever, taskID)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -113,7 +113,7 @@ func (r *taskRepositoryDB) ToggleDone(id string) (*repository.Task, error) {
 func (r *taskRepositoryDB) Update(id string, editTask repository.EditTask) (*repository.Task, error) {
 	taskID, err := strconv.Atoi(id)
 	if err != nil {
-		return nil, errs.NaN("UserID")
+		return nil, errs.NaN("taskID")
 	}
 
 	var task repository.Task
@@ -134,12 +134,12 @@ func (r *taskRepositoryDB) Update(id string, editTask repository.EditTask) (*rep
 }
 
 func (r *taskRepositoryDB) Delete(id string) error {
-	userID, err := strconv.Atoi(id)
+	taskID, err := strconv.Atoi(id)
 	if err != nil {
-		return errs.NaN("UserID")
+		return errs.NaN("TaskID")
 	}
 
-	tx := r.db.Delete(&repository.Task{}, userID)
+	tx := r.db.Delete(&repository.Task{}, taskID)
 	if tx.Error != nil {
 		return tx.Error
 	}
