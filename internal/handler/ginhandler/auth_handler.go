@@ -26,9 +26,11 @@ func (t authHandler) Register(ctx *gin.Context) {
 	}
 
 	registerServ := service.Register{
-		Username: reqAuth.Username,
-		Password: reqAuth.Password,
-		Name:     reqAuth.Name,
+		Username:  reqAuth.Username,
+		Password:  reqAuth.Password,
+		Name:      reqAuth.Name,
+		UserAgent: ctx.Request.UserAgent(),
+		ClientIP:  ctx.ClientIP(),
 	}
 
 	register, err := t.authSrv.Register(registerServ)
@@ -50,8 +52,10 @@ func (t authHandler) Login(ctx *gin.Context) {
 	}
 
 	loginServ := service.Login{
-		Username: reqAuth.Username,
-		Password: reqAuth.Password,
+		Username:  reqAuth.Username,
+		Password:  reqAuth.Password,
+		UserAgent: ctx.Request.UserAgent(),
+		ClientIP:  ctx.ClientIP(),
 	}
 
 	login, err := t.authSrv.Login(loginServ)

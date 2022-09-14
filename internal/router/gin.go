@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/hifat/go-todo-hexagonal/configs"
 	"github.com/hifat/go-todo-hexagonal/helper/zlog"
@@ -26,6 +27,8 @@ func ExecGinRouter() {
 	db := configs.GormDB()
 	r := gin.Default()
 
+	r.Use(cors.Default())
+
 	jwtMaker, err := token.NewJWTMaker(os.Getenv("JWT_SECRET_KEY"))
 	if err != nil {
 		panic(err)
@@ -44,6 +47,15 @@ func ExecGinRouter() {
 		routeAuths.POST("/register", newAuthHandler.Register)
 		routeAuths.POST("/login", newAuthHandler.Login)
 		routeAuths.GET("/me", middlewareAuth, newAuthHandler.Me)
+	}
+
+	newTokenSrv := service.NewTokenService(newAuthGorm, jwtMaker)
+	newTokenHandler := ginhandler.NewTokenHandler(newTokenSrv)
+
+	routeTokens := routeApi.Group("/tokens", middlewareAuth)
+	{
+		routeTokens.POST("/renew_access", newTokenHandler.RenewAccessToken)
+
 	}
 
 	newTaskGorm := gormrepo.NewTaskGorm(db)

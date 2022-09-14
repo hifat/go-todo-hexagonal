@@ -40,6 +40,53 @@ func NewAuthService(db repository.AuthRepository) AuthService {
 	return authService{db}
 }
 
+// Functino for handle create session
+func createSession(r authService, user User, login Login) (*Auth, error) {
+	userPayload := token.UserPayload{
+		UserID:   user.ID,
+		Username: user.Username,
+	}
+
+	accessToken, accessPayload, err := jwtMaker.CreateToken(userPayload, 15*time.Minute)
+	if err != nil {
+		zlog.Error(err)
+		return nil, errs.Unexpected()
+	}
+
+	refreshToken, refreshPayload, err := jwtMaker.CreateToken(userPayload, 24*time.Hour)
+	if err != nil {
+		zlog.Error(err)
+		return nil, errs.Unexpected()
+	}
+
+	newSession := repository.NewSession{
+		ID:           fmt.Sprintf("%v", refreshPayload.ID),
+		Username:     userPayload.Username,
+		RefreshToken: refreshToken,
+		UserAgent:    login.UserAgent,
+		ClientIP:     login.ClientIP,
+		IsBlocked:    false,
+		ExpiresAt:    refreshPayload.ExpiredAt,
+	}
+
+	session, err := r.db.CreateSession(newSession)
+	if err != nil {
+		zlog.Error(err)
+		return nil, errs.Unexpected()
+	}
+
+	auth := Auth{
+		User:                  user,
+		SessionID:             session.ID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
+	}
+
+	return &auth, nil
+}
+
 func (r authService) Register(register Register) (*Auth, error) {
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -67,23 +114,19 @@ func (r authService) Register(register Register) (*Auth, error) {
 		UpdatedAt: registerDB.UpdatedAt,
 	}
 
-	userPayload := token.UserPayload{
-		UserID:   user.ID,
-		Username: user.Username,
+	login := Login{
+		Username:  register.Username,
+		Password:  register.Password,
+		UserAgent: register.UserAgent,
+		ClientIP:  register.ClientIP,
 	}
 
-	token, err := jwtMaker.CreateToken(userPayload, 24*time.Hour)
+	auth, err := createSession(r, user, login)
 	if err != nil {
-		zlog.Error(err)
 		return nil, errs.Unexpected()
 	}
 
-	auth := Auth{
-		User:        user,
-		AccessToken: token,
-	}
-
-	return &auth, nil
+	return auth, nil
 }
 
 func (r authService) Login(login Login) (*Auth, error) {
@@ -106,23 +149,12 @@ func (r authService) Login(login Login) (*Auth, error) {
 		UpdatedAt: loginDB.UpdatedAt,
 	}
 
-	userPayload := token.UserPayload{
-		UserID:   user.ID,
-		Username: user.Username,
-	}
-
-	token, err := jwtMaker.CreateToken(userPayload, 24*time.Hour)
+	auth, err := createSession(r, user, login)
 	if err != nil {
-		zlog.Error(err)
 		return nil, errs.Unexpected()
 	}
 
-	auth := Auth{
-		User:        user,
-		AccessToken: token,
-	}
-
-	return &auth, nil
+	return auth, nil
 }
 
 func (r authService) Me(accessToken string) (*Auth, error) {
@@ -130,7 +162,6 @@ func (r authService) Me(accessToken string) (*Auth, error) {
 	if err != nil {
 		return nil, errs.Unexpected()
 	}
-	fmt.Println("Payload: ", payload.Username)
 
 	meDB, err := r.db.Me(payload.Username)
 	if err != nil {

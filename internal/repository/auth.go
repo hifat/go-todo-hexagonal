@@ -20,4 +20,6 @@ type AuthRepository interface {
 	Register(register Register) (*Auth, error)
 	Login(login Login) (*Auth, error)
 	Me(token string) (*Auth, error)
+	ShowSession(id string) (*Session, error)
+	CreateSession(newSession NewSession) (*Session, error)
 }

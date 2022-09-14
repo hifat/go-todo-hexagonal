@@ -2,6 +2,10 @@ package errs
 
 import "net/http"
 
+const (
+	Unauthorized = "unauthorized"
+)
+
 type AppError struct {
 	Code    int
 	Message string

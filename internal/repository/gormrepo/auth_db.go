@@ -102,3 +102,57 @@ func (r authRepositoryDB) Me(username string) (*repository.Auth, error) {
 
 	return &auth, nil
 }
+
+func (s authRepositoryDB) ShowSession(id string) (*repository.Session, error) {
+	var session repository.Session
+
+	tx := s.db.Where("id = ?", id).First(&session)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return &session, nil
+}
+
+type Session struct {
+	ID           string
+	Username     string
+	RefreshToken string
+	UserAgent    string
+	ClientIP     string
+	IsBlocked    bool
+	ExpiresAt    time.Time
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+func (s authRepositoryDB) CreateSession(newSession repository.NewSession) (*repository.Session, error) {
+	createSession := Session{
+		ID:           newSession.ID,
+		Username:     newSession.Username,
+		RefreshToken: newSession.RefreshToken,
+		UserAgent:    newSession.UserAgent,
+		ClientIP:     newSession.ClientIP,
+		IsBlocked:    newSession.IsBlocked,
+		ExpiresAt:    newSession.ExpiresAt,
+	}
+
+	tx := s.db.Create(&createSession)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	session := repository.Session{
+		ID:           createSession.ID,
+		Username:     createSession.Username,
+		RefreshToken: createSession.RefreshToken,
+		UserAgent:    createSession.UserAgent,
+		ClientIP:     createSession.ClientIP,
+		IsBlocked:    createSession.IsBlocked,
+		ExpiresAt:    createSession.ExpiresAt,
+		CreatedAt:    createSession.CreatedAt,
+		UpdatedAt:    createSession.UpdatedAt,
+	}
+
+	return &session, nil
+}

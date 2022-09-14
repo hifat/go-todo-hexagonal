@@ -10,5 +10,6 @@ func main() {
 	db.AutoMigrate(
 		&migration.User{},
 		&migration.Task{},
+		&migration.Session{},
 	)
 }
