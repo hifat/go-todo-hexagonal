@@ -11,14 +11,14 @@ type Register struct {
 }
 
 type Login struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
+	Username  string `validate:"required,max=100" json:"username"`
+	Password  string `validate:"required,max=150" json:"password"`
 	UserAgent string `json:"user_agent"`
 	ClientIP  string `json:"client_ip"`
 }
 
 type Auth struct {
-	User
+	User                  User      `json:"user"`
 	SessionID             string    `json:"session_id"`
 	AccessToken           string    `json:"access_token"`
 	AccessTokenExpiresAt  time.Time `json:"access_token_expires_at"`

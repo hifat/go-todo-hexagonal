@@ -20,7 +20,7 @@ func NewTokenService(db repository.AuthRepository, jwtMaker token.Maker) TokenSe
 	return &tokenService{db, jwtMaker}
 }
 
-func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenRequest) (*RenewAccessTokenResponse, error) {
+func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenRequest, userDevice UserDevice) (*RenewAccessTokenResponse, error) {
 	refreshPayload, err := t.jwtMaker.VerifyToken(renewAccessTokenReq.RefreshToken)
 	if err != nil {
 		zlog.Error(err)
@@ -62,15 +62,44 @@ func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenReque
 		Username: refreshPayload.Username,
 	}
 
-	accessToken, accessPayload, err := t.jwtMaker.CreateToken(userPayload, 24*time.Hour)
+	accessToken, accessPayload, err := t.jwtMaker.CreateToken(userPayload, 5*time.Minute)
 	if err != nil {
 		zlog.Error(err)
 		return nil, errs.Unexpected()
 	}
 
+	newRefreshToken, newRefreshPayload, err := t.jwtMaker.CreateToken(userPayload, 24*time.Hour)
+	if err != nil {
+		zlog.Error(err)
+		return nil, errs.Unexpected()
+	}
+
+	err = t.db.DeleteSession(refreshPayload.ID.String())
+	if err != nil {
+		zlog.Error(err)
+		return nil, errs.Unexpected()
+	}
+
+	newSessionRepo := repository.NewSession{
+		ID:           newRefreshPayload.ID.String(),
+		Username:     newRefreshPayload.Username,
+		RefreshToken: newRefreshToken,
+		UserAgent:    userDevice.UserAgent,
+		ClientIP:     userDevice.ClientIP,
+		IsBlocked:    false,
+		ExpiresAt:    newRefreshPayload.ExpiredAt,
+	}
+
+	_, err = t.db.CreateSession(newSessionRepo)
+	if err != nil {
+		return nil, errs.Unexpected()
+	}
+
 	rsp := RenewAccessTokenResponse{
-		AccessToken:          accessToken,
-		AccessTokenExpiresAt: accessPayload.ExpiredAt,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          newRefreshToken,
+		RefreshTokenExpiresAt: newRefreshPayload.ExpiredAt,
 	}
 
 	return &rsp, nil

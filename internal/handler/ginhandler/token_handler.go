@@ -28,7 +28,12 @@ func (t tokenHandler) RenewAccessToken(ctx *gin.Context) {
 		RefreshToken: req.RefreshToken,
 	}
 
-	accessToken, err := t.tokenSrv.RenewAccessToken(renewAccessToken)
+	userDevice := service.UserDevice{
+		UserAgent: ctx.Request.UserAgent(),
+		ClientIP:  ctx.ClientIP(),
+	}
+
+	accessToken, err := t.tokenSrv.RenewAccessToken(renewAccessToken, userDevice)
 	if err != nil {
 		handlerError(ctx, err)
 		return

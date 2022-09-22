@@ -64,7 +64,7 @@ func (t authHandler) Login(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"user": login,
+		"auth": login,
 	})
 }
 
@@ -78,6 +78,6 @@ func (t authHandler) Me(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"user": login,
+		"auth": login,
 	})
 }

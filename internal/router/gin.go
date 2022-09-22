@@ -25,9 +25,13 @@ func init() {
 
 func ExecGinRouter() {
 	db := configs.GormDB()
-	r := gin.Default()
+	router := gin.Default()
 
-	r.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+
+	router.Use(cors.New(corsConfig))
 
 	jwtMaker, err := token.NewJWTMaker(os.Getenv("JWT_SECRET_KEY"))
 	if err != nil {
@@ -35,8 +39,9 @@ func ExecGinRouter() {
 	}
 
 	middlewareAuth := ginmiddleware.Auth(jwtMaker)
+	_ = middlewareAuth
 
-	routeApi := r.Group("/api")
+	routeApi := router.Group("/api")
 
 	newAuthGorm := gormrepo.NewAuthGorm(db)
 	newAuthSrv := service.NewAuthService(newAuthGorm)
@@ -55,7 +60,6 @@ func ExecGinRouter() {
 	routeTokens := routeApi.Group("/tokens", middlewareAuth)
 	{
 		routeTokens.POST("/renew_access", newTokenHandler.RenewAccessToken)
-
 	}
 
 	newTaskGorm := gormrepo.NewTaskGorm(db)
@@ -64,8 +68,8 @@ func ExecGinRouter() {
 
 	routeTasks := routeApi.Group("/tasks", middlewareAuth)
 	{
-		routeTasks.GET("/", newTaskHandler.Get)
-		routeTasks.POST("/", newTaskHandler.Create)
+		routeTasks.GET("", newTaskHandler.Get)
+		routeTasks.POST("", newTaskHandler.Create)
 		routeTasks.GET("/:task", newTaskHandler.Show)
 		routeTasks.PUT("/:task/done", newTaskHandler.ToggleDone)
 		routeTasks.PUT("/:task", newTaskHandler.Update)
@@ -78,9 +82,9 @@ func ExecGinRouter() {
 
 	routeUsers := routeApi.Group("/users", middlewareAuth)
 	{
-		routeUsers.PUT("/", newUserHandler.Update)
+		routeUsers.PUT("", newUserHandler.Update)
 	}
 
 	zlog.Info("Server listening on port " + os.Getenv("APP_PORT"))
-	r.Run(fmt.Sprintf("%v:%v", os.Getenv("APP_HOST"), os.Getenv("APP_PORT")))
+	router.Run(fmt.Sprintf("%v:%v", os.Getenv("APP_HOST"), os.Getenv("APP_PORT")))
 }

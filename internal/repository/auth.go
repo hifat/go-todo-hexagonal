@@ -22,4 +22,5 @@ type AuthRepository interface {
 	Me(token string) (*Auth, error)
 	ShowSession(id string) (*Session, error)
 	CreateSession(newSession NewSession) (*Session, error)
+	DeleteSession(id string) error
 }

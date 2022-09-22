@@ -11,7 +11,7 @@ func handlerError(ctx *gin.Context, err error) {
 	switch e := err.(type) {
 	case errs.AppError:
 		ctx.JSON(e.Code, gin.H{
-			"message": e.Message,
+			"error": e,
 		})
 	case error:
 		ctx.JSON(http.StatusInternalServerError, e)

@@ -156,3 +156,9 @@ func (s authRepositoryDB) CreateSession(newSession repository.NewSession) (*repo
 
 	return &session, nil
 }
+
+func (s authRepositoryDB) DeleteSession(id string) error {
+	var session Session
+	tx := s.db.Where("id = ?", id).Delete(&session)
+	return tx.Error
+}

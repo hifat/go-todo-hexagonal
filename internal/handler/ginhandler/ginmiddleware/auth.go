@@ -10,7 +10,6 @@ import (
 )
 
 func Auth(tokenMaker token.Maker) gin.HandlerFunc {
-
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		accessToken := strings.TrimPrefix(authHeader, "Bearer ")

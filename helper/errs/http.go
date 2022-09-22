@@ -1,14 +1,19 @@
 package errs
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/hifat/go-todo-hexagonal/helper/rules"
+)
 
 const (
 	Unauthorized = "unauthorized"
 )
 
 type AppError struct {
-	Code    int
-	Message string
+	Code    int            `json:"code"`
+	Message string         `json:"message"`
+	Errors  []rules.Errors `json:"errors"`
 }
 
 func (e AppError) Error() string {
@@ -29,6 +34,14 @@ func BadRequest(message string) AppError {
 	}
 }
 
+func UnprocessableEntity(errors []rules.Errors) AppError {
+	return AppError{
+		Code:    http.StatusUnprocessableEntity,
+		Message: "unprocessable entity",
+		Errors:  errors,
+	}
+}
+
 func Unauthorizetion(message string) AppError {
 	return AppError{
 		Code:    http.StatusUnauthorized,
@@ -39,6 +52,6 @@ func Unauthorizetion(message string) AppError {
 func Unexpected() AppError {
 	return AppError{
 		Code:    http.StatusInternalServerError,
-		Message: "Unexpected error",
+		Message: "unexpected error",
 	}
 }
