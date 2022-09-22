@@ -147,7 +147,7 @@ func (r authService) Login(login Login) (*Auth, error) {
 			ruleMSG := rules.Validate(err)
 			errFields = append(errFields, ruleMSG)
 		}
-		fmt.Println(errFields)
+
 		return nil, errs.UnprocessableEntity(errFields)
 	}
 

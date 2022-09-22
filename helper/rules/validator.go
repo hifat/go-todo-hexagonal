@@ -8,12 +8,14 @@ import (
 type Errors map[string]string
 
 func Validate(err validator.FieldError) map[string]string {
+	field := resource.Fields[err.Field()]
+
 	rulesMSG := map[string]string{
-		"required": "field " + err.Field() + " has required",
+		"required": "field " + field + " has required",
 	}
 
 	msg := map[string]string{
-		resource.Fields[err.StructField()]: rulesMSG[err.Tag()],
+		field: rulesMSG[err.Tag()],
 	}
 
 	return msg
