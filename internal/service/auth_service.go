@@ -5,9 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/hifat/go-todo-hexagonal/helper/errs"
-	"github.com/hifat/go-todo-hexagonal/helper/rules"
 	"github.com/hifat/go-todo-hexagonal/helper/zlog"
 	"github.com/hifat/go-todo-hexagonal/internal/repository"
 	"github.com/hifat/go-todo-hexagonal/internal/token"
@@ -15,10 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var (
-	jwtMaker token.Maker
-	validate *validator.Validate
-)
+var jwtMaker token.Maker
 
 type authService struct {
 	db repository.AuthRepository
@@ -133,22 +128,9 @@ func (r authService) Register(register Register) (*Auth, error) {
 }
 
 func (r authService) Login(login Login) (*Auth, error) {
-	validate = validator.New()
-
-	err := validate.Struct(login)
-	var errFields []rules.Errors
-	if err != nil {
-		if _, ok := err.(*validator.InvalidValidationError); ok {
-			zlog.Error(err)
-			return nil, err
-		}
-
-		for _, err := range err.(validator.ValidationErrors) {
-			ruleMSG := rules.Validate(err)
-			errFields = append(errFields, ruleMSG)
-		}
-
-		return nil, errs.UnprocessableEntity(errFields)
+	errValidate := validateForm(login)
+	if errValidate != nil {
+		return nil, errValidate
 	}
 
 	loginRepo := repository.Login{
