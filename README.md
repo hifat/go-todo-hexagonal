@@ -7,14 +7,15 @@
 - [x] Edit user profile
 - [x] CRUD Task
 - [x] Toggle task done
+- [x] Form validate
 
-### Run
-1. Start docker for use DB
+### Run app with docker
 ```
 docker-compose up -d
 ```
 
-2. Run API server
+### Run app only
+You have to had mariadb
 ```
 go run .
 ```
