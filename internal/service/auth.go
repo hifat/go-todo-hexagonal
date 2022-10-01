@@ -3,9 +3,9 @@ package service
 import "time"
 
 type Register struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	Name      string `json:"name"`
+	Username  string `validate:"required,max=100" json:"username"`
+	Password  string `validate:"required,max=100" json:"password"`
+	Name      string `validate:"required,max=100" json:"name"`
 	UserAgent string `json:"user_agent"`
 	ClientIP  string `json:"client_ip"`
 }

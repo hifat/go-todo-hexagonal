@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   mariadb:
-    image: mariadb
+    image: mariadb:10.9.2
     container_name: mariadb
     environment: 
       - MARIADB_USER=root
@@ -12,3 +12,25 @@ services:
       - 3306:3306
     volumes: 
       - ./.docker/mariadb:/var/lib/mysql
+    networks:
+      - goweb
+  
+  app:
+    depends_on:
+      - mariadb
+    container_name: go-todo
+    environment: 
+      - MYSQL_HOST=mariadb
+      - APP_HOST=
+    build: .
+    restart: always
+    ports:
+      - 1112:3000
+    entrypoint: ["/app/wait-for.sh", "mariadb:3306", "--", "/app/start.sh"]
+    command: ["/app/main"]
+    networks:
+      - goweb
+
+networks:
+  goweb:
+    driver: bridge

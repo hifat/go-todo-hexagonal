@@ -9,3 +9,6 @@ rmctn:
 
 startctn:
 	docker start postgres12
+
+run:
+	go run .

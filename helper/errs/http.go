@@ -53,3 +53,10 @@ func Unexpected() *AppError {
 		Message: "unexpected error",
 	}
 }
+
+func Conflict(message string) *AppError {
+	return &AppError{
+		Code:    http.StatusConflict,
+		Message: message,
+	}
+}

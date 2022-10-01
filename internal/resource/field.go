@@ -7,4 +7,8 @@ package resource
 var Fields = map[string]string{
 	"Username": "username",
 	"Password": "password",
+	"Name":     "name",
+	"UserID":   "user",
+	"Detail":   "detail",
+	"Done":     "done",
 }

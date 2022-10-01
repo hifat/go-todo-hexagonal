@@ -34,7 +34,7 @@ func (r authRepositoryDB) Register(register repository.Register) (*repository.Au
 
 	tx := r.db.Create(&newUser)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	auth := repository.Auth{
@@ -58,7 +58,7 @@ func (r authRepositoryDB) Login(login repository.Login) (*repository.Auth, error
 
 	tx := r.db.Where("username = ?", credentials.Username).First(&credentials)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	user := repository.User{
@@ -84,7 +84,7 @@ func (r authRepositoryDB) Me(username string) (*repository.Auth, error) {
 
 	tx := r.db.Where("username = ?", credentials.Username).First(&credentials)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	user := repository.User{
@@ -108,7 +108,7 @@ func (s authRepositoryDB) ShowSession(id string) (*repository.Session, error) {
 
 	tx := s.db.Where("id = ?", id).First(&session)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	return &session, nil
@@ -139,7 +139,7 @@ func (s authRepositoryDB) CreateSession(newSession repository.NewSession) (*repo
 
 	tx := s.db.Create(&createSession)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	session := repository.Session{
@@ -160,5 +160,5 @@ func (s authRepositoryDB) CreateSession(newSession repository.NewSession) (*repo
 func (s authRepositoryDB) DeleteSession(id string) error {
 	var session Session
 	tx := s.db.Where("id = ?", id).Delete(&session)
-	return tx.Error
+	return errHandler(tx.Error)
 }

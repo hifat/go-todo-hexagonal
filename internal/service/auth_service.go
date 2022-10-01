@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -86,6 +87,11 @@ func createSession(r authService, user User, login Login) (*Auth, error) {
 }
 
 func (r authService) Register(register Register) (*Auth, error) {
+	errValidate := validateForm(register)
+	if errValidate != nil {
+		return nil, errValidate
+	}
+
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
 	if err != nil {
 		zlog.Error(err)
@@ -141,7 +147,12 @@ func (r authService) Login(login Login) (*Auth, error) {
 	loginDB, err := r.db.Login(loginRepo)
 	if err != nil {
 		zlog.Error(err)
-		return nil, errs.Unexpected()
+
+		if errors.Is(err, errs.ErrRecordNotFound) {
+			return nil, errs.Unauthorizetion("Invalid credentials")
+		}
+
+		return nil, errs.HttpError(err)
 	}
 
 	user := User{
