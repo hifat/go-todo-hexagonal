@@ -39,7 +39,7 @@ func NewAuthService(db repository.AuthRepository) AuthService {
 	return authService{db}
 }
 
-// Functino for handle create session
+// Function for create session
 func createSession(r authService, user User, login Login) (*Auth, error) {
 	userPayload := token.UserPayload{
 		UserID:   user.ID,

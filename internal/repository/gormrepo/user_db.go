@@ -25,7 +25,7 @@ func (r userRepositoryDB) Update(id string, editUser repository.EditUser) (*repo
 	var user repository.User
 	tx := r.db.First(&user, userID)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	tx = r.db.Model(&user).Updates(map[string]interface{}{
@@ -33,7 +33,7 @@ func (r userRepositoryDB) Update(id string, editUser repository.EditUser) (*repo
 		"name":     editUser.Name,
 	})
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	return &user, nil

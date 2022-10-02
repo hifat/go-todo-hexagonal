@@ -21,7 +21,7 @@ func (r *taskRepositoryDB) Get(userID string) ([]repository.Task, error) {
 	var tasks []repository.Task
 	tx := r.db.Where("user_id = ?", userID).Find(&tasks)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	return tasks, nil
@@ -49,7 +49,7 @@ func (r *taskRepositoryDB) Create(newTask repository.NewTask) (*repository.Task,
 
 	tx := r.db.Create(&createdTask)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	task := repository.Task{
@@ -73,7 +73,7 @@ func (r *taskRepositoryDB) Show(id string) (*repository.Task, error) {
 	var taskReciever Task
 	tx := r.db.Find(&taskReciever, taskID)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	task := repository.Task{
@@ -97,14 +97,14 @@ func (r *taskRepositoryDB) ToggleDone(id string) (*repository.Task, error) {
 	var task repository.Task
 	tx := r.db.First(&task, taskID)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	tx = r.db.Model(&task).Updates(map[string]interface{}{
 		"Done": !task.Done,
 	})
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	return &task, nil
@@ -119,7 +119,7 @@ func (r *taskRepositoryDB) Update(id string, editTask repository.EditTask) (*rep
 	var task repository.Task
 	tx := r.db.First(&task, taskID)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	tx = r.db.Model(&task).Updates(map[string]interface{}{
@@ -127,7 +127,7 @@ func (r *taskRepositoryDB) Update(id string, editTask repository.EditTask) (*rep
 		"Done":   editTask.Done,
 	})
 	if tx.Error != nil {
-		return nil, tx.Error
+		return nil, errHandler(tx.Error)
 	}
 
 	return &task, nil
@@ -141,7 +141,7 @@ func (r *taskRepositoryDB) Delete(id string) error {
 
 	tx := r.db.Delete(&repository.Task{}, taskID)
 	if tx.Error != nil {
-		return tx.Error
+		return errHandler(tx.Error)
 	}
 
 	return nil
