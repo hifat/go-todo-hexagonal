@@ -107,7 +107,7 @@ func (r authService) Register(register Register) (*Auth, error) {
 	registerDB, err := r.db.Register(registerRepo)
 	if err != nil {
 		zlog.Error(err)
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	user := User{
@@ -179,7 +179,7 @@ func (r authService) Me(accessToken string) (*Auth, error) {
 
 	meDB, err := r.db.Me(payload.Username)
 	if err != nil {
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	user := Auth{

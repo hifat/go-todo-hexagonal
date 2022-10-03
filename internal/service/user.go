@@ -11,8 +11,8 @@ type User struct {
 }
 
 type EditUser struct {
-	Username string `json:"username"`
-	Name     string `json:"name"`
+	Username string `validate:"required,max=100" json:"username"`
+	Name     string `validate:"required,max=100" json:"name"`
 }
 
 type UserService interface {

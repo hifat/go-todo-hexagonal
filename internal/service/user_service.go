@@ -15,6 +15,11 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 }
 
 func (u userService) Update(id string, user EditUser) (*User, error) {
+	errValidate := validateForm(user)
+	if errValidate != nil {
+		return nil, errValidate
+	}
+
 	editUser := repository.EditUser{
 		Username: user.Username,
 		Name:     user.Name,
@@ -24,7 +29,7 @@ func (u userService) Update(id string, user EditUser) (*User, error) {
 
 	if err != nil {
 		zlog.Error(err)
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	userResponse := User{

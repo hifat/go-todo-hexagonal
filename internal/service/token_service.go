@@ -8,7 +8,6 @@ import (
 	"github.com/hifat/go-todo-hexagonal/helper/zlog"
 	"github.com/hifat/go-todo-hexagonal/internal/repository"
 	"github.com/hifat/go-todo-hexagonal/internal/token"
-	"gorm.io/gorm"
 )
 
 type tokenService struct {
@@ -30,11 +29,7 @@ func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenReque
 	session, err := t.db.ShowSession(fmt.Sprintf("%v", refreshPayload.ID))
 	if err != nil {
 		zlog.Error(err)
-		if err == gorm.ErrRecordNotFound {
-			return nil, errs.NotFound(err.Error())
-		}
-
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	if session.IsBlocked {
@@ -77,7 +72,7 @@ func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenReque
 	err = t.db.DeleteSession(refreshPayload.ID.String())
 	if err != nil {
 		zlog.Error(err)
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	newSessionRepo := repository.NewSession{
@@ -92,7 +87,7 @@ func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenReque
 
 	_, err = t.db.CreateSession(newSessionRepo)
 	if err != nil {
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	rsp := RenewAccessTokenResponse{

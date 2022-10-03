@@ -13,12 +13,12 @@ type Task struct {
 
 type NewTask struct {
 	UserID string `json:"user_id"`
-	Detail string `json:"detail"`
+	Detail string `validate:"required,max=255" json:"detail"`
 	Done   bool   `json:"done"`
 }
 
 type EditTask struct {
-	Detail string `json:"detail"`
+	Detail string `validate:"required" json:"detail"`
 	Done   bool   `json:"done"`
 }
 

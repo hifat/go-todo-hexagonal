@@ -18,7 +18,7 @@ func (t taskService) Get(userID string) ([]Task, error) {
 	getTasks, err := t.taskRepo.Get(userID)
 	if err != nil {
 		zlog.Error(err)
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	tasks := []Task{}
@@ -37,6 +37,11 @@ func (t taskService) Get(userID string) ([]Task, error) {
 }
 
 func (t taskService) Create(task NewTask) (*Task, error) {
+	errValidate := validateForm(task)
+	if errValidate != nil {
+		return nil, errValidate
+	}
+
 	newTask := repository.NewTask{
 		UserID: task.UserID,
 		Detail: task.Detail,
@@ -46,7 +51,7 @@ func (t taskService) Create(task NewTask) (*Task, error) {
 	createdTask, err := t.taskRepo.Create(newTask)
 	if err != nil {
 		zlog.Error(err)
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	taskResponse := Task{
@@ -65,7 +70,7 @@ func (t taskService) Show(id string) (*Task, error) {
 	getTask, err := t.taskRepo.Show(id)
 	if err != nil {
 		zlog.Error(err)
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	taskResponse := Task{
@@ -84,7 +89,7 @@ func (t taskService) ToggleDone(id string) (*Task, error) {
 	updatedTask, err := t.taskRepo.ToggleDone(id)
 	if err != nil {
 		zlog.Error(err)
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	taskResponse := Task{
@@ -100,6 +105,11 @@ func (t taskService) ToggleDone(id string) (*Task, error) {
 }
 
 func (t taskService) Update(id string, task EditTask) (*Task, error) {
+	errValidate := validateForm(task)
+	if errValidate != nil {
+		return nil, errValidate
+	}
+
 	editTask := repository.EditTask{
 		Detail: task.Detail,
 		Done:   task.Done,
@@ -109,7 +119,7 @@ func (t taskService) Update(id string, task EditTask) (*Task, error) {
 
 	if err != nil {
 		zlog.Error(err)
-		return nil, errs.Unexpected()
+		return nil, errs.HttpError(err)
 	}
 
 	taskResponse := Task{
@@ -128,7 +138,7 @@ func (t taskService) Delete(id string) error {
 	err := t.taskRepo.Delete(id)
 	if err != nil {
 		zlog.Error(err)
-		return errs.Unexpected()
+		return errs.HttpError(err)
 	}
 
 	return nil
