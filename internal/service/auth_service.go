@@ -17,7 +17,7 @@ import (
 var jwtMaker token.Maker
 
 type authService struct {
-	db repository.AuthRepository
+	authRepo repository.AuthRepository
 }
 
 func init() {
@@ -35,8 +35,8 @@ func init() {
 	}
 }
 
-func NewAuthService(db repository.AuthRepository) AuthService {
-	return authService{db}
+func NewAuthService(authRepo repository.AuthRepository) AuthService {
+	return authService{authRepo}
 }
 
 // Function for create session
@@ -68,7 +68,7 @@ func createSession(r authService, user User, login Login) (*Auth, error) {
 		ExpiresAt:    refreshPayload.ExpiredAt,
 	}
 
-	session, err := r.db.CreateSession(newSession)
+	session, err := r.authRepo.CreateSession(newSession)
 	if err != nil {
 		zlog.Error(err)
 		return nil, errs.Unexpected()
@@ -104,7 +104,7 @@ func (r authService) Register(register Register) (*Auth, error) {
 		Name:     register.Name,
 	}
 
-	registerDB, err := r.db.Register(registerRepo)
+	registerDB, err := r.authRepo.Register(registerRepo)
 	if err != nil {
 		zlog.Error(err)
 		return nil, errs.HttpError(err)
@@ -144,7 +144,7 @@ func (r authService) Login(login Login) (*Auth, error) {
 		Password: login.Password,
 	}
 
-	loginDB, err := r.db.Login(loginRepo)
+	loginDB, err := r.authRepo.Login(loginRepo)
 	if err != nil {
 		zlog.Error(err)
 
@@ -177,7 +177,7 @@ func (r authService) Me(accessToken string) (*Auth, error) {
 		return nil, errs.Unexpected()
 	}
 
-	meDB, err := r.db.Me(payload.Username)
+	meDB, err := r.authRepo.Me(payload.Username)
 	if err != nil {
 		return nil, errs.HttpError(err)
 	}

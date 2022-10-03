@@ -11,12 +11,12 @@ import (
 )
 
 type tokenService struct {
-	db       repository.AuthRepository
+	authRepo repository.AuthRepository
 	jwtMaker token.Maker
 }
 
-func NewTokenService(db repository.AuthRepository, jwtMaker token.Maker) TokenService {
-	return &tokenService{db, jwtMaker}
+func NewTokenService(authRepo repository.AuthRepository, jwtMaker token.Maker) TokenService {
+	return &tokenService{authRepo, jwtMaker}
 }
 
 func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenRequest, userDevice UserDevice) (*RenewAccessTokenResponse, error) {
@@ -26,7 +26,7 @@ func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenReque
 		return nil, errs.Unauthorizetion(errs.Unauthorized)
 	}
 
-	session, err := t.db.ShowSession(fmt.Sprintf("%v", refreshPayload.ID))
+	session, err := t.authRepo.ShowSession(fmt.Sprintf("%v", refreshPayload.ID))
 	if err != nil {
 		zlog.Error(err)
 		return nil, errs.HttpError(err)
@@ -69,7 +69,7 @@ func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenReque
 		return nil, errs.Unexpected()
 	}
 
-	err = t.db.DeleteSession(refreshPayload.ID.String())
+	err = t.authRepo.DeleteSession(refreshPayload.ID.String())
 	if err != nil {
 		zlog.Error(err)
 		return nil, errs.HttpError(err)
@@ -85,7 +85,7 @@ func (t tokenService) RenewAccessToken(renewAccessTokenReq RenewAccessTokenReque
 		ExpiresAt:    newRefreshPayload.ExpiredAt,
 	}
 
-	_, err = t.db.CreateSession(newSessionRepo)
+	_, err = t.authRepo.CreateSession(newSessionRepo)
 	if err != nil {
 		return nil, errs.HttpError(err)
 	}
